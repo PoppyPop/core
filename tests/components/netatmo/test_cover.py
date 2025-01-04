@@ -12,6 +12,10 @@ from homeassistant.components.cover import (
     SERVICE_SET_COVER_POSITION,
     SERVICE_STOP_COVER,
 )
+from homeassistant.components.netatmo.const import (
+    DOMAIN as NETATMO_DOMAIN,
+    SERVICE_MOVE_COVER_TO_PREFERRED_POSITION,
+)
 from homeassistant.const import ATTR_ENTITY_ID, Platform
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.entity_registry as er
@@ -129,6 +133,41 @@ async def test_cover_setup_and_services(
                     {
                         "id": "0009999992",
                         "target_position": 50,
+                        "bridge": "12:34:56:30:d5:d4",
+                    }
+                ]
+            }
+        )
+
+
+async def test_service_move_cover_to_preferred_position(
+    hass: HomeAssistant, config_entry: MockConfigEntry, netatmo_auth: AsyncMock
+) -> None:
+    """Test service clearing temperature setting."""
+    with selected_platforms([Platform.COVER]):
+        assert await hass.config_entries.async_setup(config_entry.entry_id)
+
+        await hass.async_block_till_done()
+
+    cover_entity = "cover.entrance_blinds"
+
+    assert hass.states.get(cover_entity).state == "closed"
+
+    # Test move cover to preferred position
+    with patch("pyatmo.home.Home.async_set_state") as mock_set_state:
+        await hass.services.async_call(
+            NETATMO_DOMAIN,
+            SERVICE_MOVE_COVER_TO_PREFERRED_POSITION,
+            {ATTR_ENTITY_ID: cover_entity},
+            blocking=True,
+        )
+        await hass.async_block_till_done()
+        mock_set_state.assert_called_once_with(
+            {
+                "modules": [
+                    {
+                        "id": "0009999992",
+                        "target_position": -2,
                         "bridge": "12:34:56:30:d5:d4",
                     }
                 ]

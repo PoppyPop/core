@@ -15,10 +15,15 @@ from homeassistant.components.cover import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_URL_CONTROL, NETATMO_CREATE_COVER
+from .const import (
+    CONF_URL_CONTROL,
+    NETATMO_CREATE_COVER,
+    SERVICE_MOVE_COVER_TO_PREFERRED_POSITION,
+)
 from .data_handler import HOME, SIGNAL_NAME, NetatmoDevice
 from .entity import NetatmoModuleEntity
 
@@ -40,6 +45,14 @@ async def async_setup_entry(
 
     entry.async_on_unload(
         async_dispatcher_connect(hass, NETATMO_CREATE_COVER, _create_entity)
+    )
+
+    platform = entity_platform.async_get_current_platform()
+
+    platform.async_register_entity_service(
+        SERVICE_MOVE_COVER_TO_PREFERRED_POSITION,
+        None,
+        "_async_service_move_cover_to_preferred_position",
     )
 
 
@@ -100,3 +113,10 @@ class NetatmoCover(NetatmoModuleEntity, CoverEntity):
         """Update the entity's state."""
         self._attr_is_closed = self.device.current_position == 0
         self._attr_current_cover_position = self.device.current_position
+
+    async def _async_service_move_cover_to_preferred_position(
+        self, **kwargs: Any
+    ) -> None:
+        """Service to move the cover to a preferred position."""
+        _LOGGER.debug("Moving %s to a preferred position", self.device.entity_id)
+        await self.device.async_move_to_preferred_position()

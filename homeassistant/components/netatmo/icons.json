@@ -65,6 +65,9 @@
     "clear_temperature_setting": {
       "service": "mdi:thermometer"
     },
+    "move_cover_to_preferred_position": {
+      "service": "mdi:window-shutter"
+    },
     "set_persons_home": {
       "service": "mdi:home"
     },

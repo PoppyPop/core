@@ -119,5 +119,11 @@ set_person_away:
       selector:
         text:
 
+move_cover_to_preferred_position:
+  target:
+    entity:
+      integration: netatmo
+      domain: cover
+
 register_webhook:
 unregister_webhook:

@@ -165,6 +165,10 @@
     "clear_temperature_setting": {
       "name": "Clear temperature setting",
       "description": "Clears any temperature setting for a Netatmo climate device reverting it to the current preset or schedule."
+    },
+    "move_cover_to_preferred_position": {
+      "name": "Move cover to preferred position",
+      "description": "Move the cover to a preferred position defined with the physical remote."
     }
   },
   "entity": {
